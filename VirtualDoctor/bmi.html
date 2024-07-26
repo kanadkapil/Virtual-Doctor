@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="retro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- navbar  -->
+    <header>
+        <div class="navbar bg-base-300 rounded-box fixed top-0 left-0 w-full z-50">
+            <div class="container mx-auto">
+                <div class=" flex-1 px-2 lg:flex-none">
+                    <a class="text-lg font-bold">Virtual Doctor 👨‍⚕️</a>
+                </div>
+                <div class="flex flex-1 justify-end px-2">
+                    <div class="flex items-stretch">
+
+                        <details class="dropdown mx-1">
+                            <summary class="btn">Theme</summary>
+                            <ul class="menu dropdown-content bg-base-100 rounded-box z-50  p-2 shadow">
+                                <li>
+                                    <input type="radio" name="theme-dropdown"
+                                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                                        aria-label="Default" value="default" />
+                                </li>
+                                <li>
+                                    <input type="radio" name="theme-dropdown"
+                                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                                        aria-label="Cyberpunk" value="cyberpunk" />
+                                </li>
+                                <li>
+                                    <input type="radio" name="theme-dropdown"
+                                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                                        aria-label="Valentine" value="valentine" />
+                                </li>
+                            </ul>
+                        </details>
+
+                        <div class="dropdown">
+                            <div tabindex="0" role="button" class="btn btn-ghost">Doctors</div>
+                            <ul tabindex="0"
+                                class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                
+                                <li><a href="index.html">Home</a></li>
+                                <li><a href="bmi.html">BMI Calculator</a></li>
+                                <li><a href="pageDiabetes.html">Diabetes</a></li>
+                                <li><a href="pageFever.html">Fever</a></li>
+                                <li><a href="pageTension.html">Blood Pressure</a></li>
+                                <li><a href="checkup.html">Check Up</a></li>
+
+                            </ul>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- main  -->
+    <div class="container mx-auto my-10 mt-20">
+        <div class="card shadow-xl rounded-lg p-6">
+            <h2 class="text-2xl font-bold my-4">BMI Calculator</h2>
+            <form id="bmiForm" class="my-4">
+                <input type="number" id="weightInput" class="input input-bordered w-full my-4" placeholder="Enter weight (kg)" required>
+                <input type="number" id="heightInput" class="input input-bordered w-full my-4" placeholder="Enter height (cm)" required>
+                <button type="submit" class="btn btn-primary w-full">Calculate BMI</button>
+            </form>
+
+            <div id="bmiResult" class="hidden">
+                <h3 class="text-xl font-bold mb-2">Your BMI Result</h3>
+                <p id="bmiValue" class="text-2xl font-bold"></p>
+                <div class="my-4">
+                    <canvas id="progressChart" width="400" height="100"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- footer  -->
+    <footer class="footer footer-center py-5 bg-base-300 text-base-content p-4 rounded-xl shadow-xl">
+        <aside>
+            <p>Copyright © - All right reserved by Tup</p>
+        </aside>
+    </footer>
+
+    <!-- script  -->
+    <script defer>
+        document.getElementById('bmiForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const weight = parseFloat(document.getElementById('weightInput').value);
+            const height = parseFloat(document.getElementById('heightInput').value) / 100; // Convert height to meters
+
+            if (isNaN(weight) || isNaN(height) || weight <= 0 || height <= 0) {
+                alert('Please enter valid weight and height.');
+                return;
+            }
+
+            const bmi = weight / (height * height);
+            const bmiValue = document.getElementById('bmiValue');
+            const bmiResult = document.getElementById('bmiResult');
+
+            bmiValue.textContent = bmi.toFixed(1);
+            bmiResult.classList.remove('hidden');
+
+            // Progress Chart
+            const ctxProgress = document.getElementById('progressChart').getContext('2d');
+            new Chart(ctxProgress, {
+                type: 'bar',
+                data: {
+                    labels: ['Underweight', 'Normal', 'Overweight', 'Obese'],
+                    datasets: [{
+                        label: 'BMI Level',
+                        data: [bmi < 18.5 ? bmi : 0, (bmi >= 18.5 && bmi < 25) ? bmi : 0, (bmi >= 25 && bmi < 30) ? bmi : 0, bmi >= 30 ? bmi : 0],
+                        backgroundColor: ['#FF9999', '#66FF66', '#FFCC99', '#FF6666'],
+                    }]
+                },
+                options: {
+                    indexAxis: 'x',
+                    scales: {
+                        x: { beginAtZero: true },
+                        y: { beginAtZero: true, max: 40 }
+                    }
+                }
+            });
+
+
+        });
+    </script>
+</body>
+</html>
