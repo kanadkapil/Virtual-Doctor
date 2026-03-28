@@ -1,64 +1,59 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dr. Ai</title>
+    <title>Dr. Ai — Clinical Intelligence</title>
+    <meta name="description" content="Your empathetic AI medical partner. Professional, intelligent tele-triage to help you understand your symptoms instantly." />
 
-    <!-- Premium Font: Outfit -->
+    <!-- Premium Font: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- DaisyUI -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.1/dist/full.min.css" rel="stylesheet" type="text/css" />
-    
     <!-- Tailwind CSS (via CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Outfit', 'sans-serif'],
+              sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              drbg: '#FFFADC',
-              drprimary: '#A4DD00',
-              drsecondary: '#B6F500',
-              draccent: '#98CD00',
-              drneutral: '#FFFADC',
-              drtext: '#112211'
-            },
-            animation: {
-              'blob': 'blob 7s infinite',
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            },
-            keyframes: {
-              blob: {
-                '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              brand: {
+                50:  '#f0fdf0',
+                100: '#dcfcdc',
+                200: '#bbf7bb',
+                300: '#86ef86',
+                400: '#4ade80',
+                500: '#A4DD00',
+                600: '#2d6a00',
+                700: '#1a4d00',
+                800: '#14390a',
+                900: '#0f2d07',
+              },
+              clinical: {
+                bg: '#f8f9fa',
+                sidebar: '#ffffff',
+                card: '#ffffff',
+                border: '#e9ecef',
+                text: '#1a1a1a',
+                muted: '#6c757d',
+                green: '#2d6a00',
+                'green-light': '#A4DD00',
+                'green-dark': '#1a4d00',
+                'green-bg': '#f0f7e8',
               }
-            }
+            },
           }
-        },
-        plugins: [],
+        }
       }
     </script>
   </head>
-  <body class="bg-drbg text-drtext antialiased h-screen overflow-hidden flex flex-col selection:bg-drprimary/30">
-    <!-- Ambient Background Glows -->
-    <div class="fixed inset-0 min-h-screen z-[-1] overflow-hidden pointer-events-none">
-       <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-drprimary/30 blur-[120px] mix-blend-multiply animate-blob"></div>
-       <div class="absolute top-[20%] right-[-10%] w-[35%] h-[40%] rounded-full bg-drsecondary/50 blur-[120px] mix-blend-multiply animate-blob animation-delay-2000"></div>
-       <div class="absolute bottom-[-20%] left-[20%] w-[50%] h-[40%] rounded-full bg-draccent/40 blur-[120px] mix-blend-multiply animate-blob animation-delay-4000"></div>
-    </div>
-    
-    <div id="root" class="h-full overflow-y-auto relative z-10"></div>
+  <body class="bg-clinical-bg text-clinical-text font-sans antialiased h-screen overflow-hidden flex flex-col">
+    <div id="root" class="h-full overflow-hidden flex flex-col"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -2,309 +2,301 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { useAI } from '../hooks/useAI';
-import { Bot, User, Send, AlertTriangle, Edit3, Globe } from 'lucide-react';
-import Button from '../components/Button';
-import Card from '../components/Card';
-import Modal from '../components/Modal';
+import { Bot, User, Send, AlertTriangle, Paperclip, Globe, Edit3, ShieldCheck, Loader2 } from 'lucide-react';
 
 export default function AiChat() {
   const { patientData, setPatientData, patientLanguage, setPatientLanguage, aiChatHistory, setAiChatHistory, setReportData } = useAppContext();
   const navigate = useNavigate();
   const { isProcessing, sendToOpenAI } = useAI();
-  
+
   const [messages, setMessages] = useState(aiChatHistory.length ? aiChatHistory : []);
   const [inputVal, setInputVal] = useState('');
   const [errorMsg, setErrorMsg] = useState(null);
-  
-  // Edit Form Modal State
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [genProgress, setGenProgress] = useState(0);
+
+  // Edit intake modal
+  const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState(patientData || {});
 
   const messagesEndRef = useRef(null);
-  
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-  
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isProcessing]);
+  useEffect(() => { if (messages.length === 0) startAIChat(); }, []);
+
+  // Fake progress animation while AI generating report
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isProcessing]);
-  
-  useEffect(() => {
-    if (messages.length === 0) {
-      startAIChat();
-    }
-  }, []);
+    if (!generating) { setGenProgress(0); return; }
+    const interval = setInterval(() => {
+      setGenProgress(p => p < 90 ? p + Math.random() * 8 : p);
+    }, 400);
+    return () => clearInterval(interval);
+  }, [generating]);
 
-  const getSystemPrompt = () => {
-    return {
-      role: 'system',
-      content: `You are a highly empathetic, calm, friendly, and efficient AI healthcare assistant acting as a doctor.
-Your goal is to collect relevant data, build trust, and provide smart, focused health guidance without overwhelming the user.
+  const getSystemPrompt = () => ({
+    role: 'system',
+    content: `You are a highly empathetic, calm, and efficient AI healthcare assistant named Dr. Ai.
+LANGUAGE: ${patientLanguage}. Always respond in ${patientLanguage}. 
 
-COMMUNICATION LANGUAGE: ${patientLanguage}
-You MUST understand and respond precisely in ${patientLanguage}. Maintain context even if the user mixes languages.
+PATIENT INTAKE DATA:
+- Age: ${patientData?.age}, Gender: ${patientData?.gender}, Weight: ${patientData?.weight}kg
+- Temperature: ${patientData?.temperature}°F, Heart Rate: ${patientData?.heartRate}bpm
+- Blood Pressure: ${patientData?.systolic}/${patientData?.diastolic}
+- Fever: ${patientData?.fever}, Pain: ${patientData?.pain} (Intensity: ${patientData?.painIntensity}/10)
+- Pain Quality: ${patientData?.painQuality?.join(', ') || 'Not specified'}
+- Fatigue: ${patientData?.fatigue}, Digestion: ${patientData?.digestion}
+- Sleep: ${patientData?.sleep}hrs, Exercise: ${patientData?.exercise}, Stress: ${patientData?.stress}/10
+- Diet: ${patientData?.diet}, Water: ${patientData?.waterIntake}L/day
+- Chief Complaint: ${patientData?.symptoms || 'None'}
+- Medical History: ${patientData?.medicalHistory}
+- Medications: ${patientData?.medications}
 
-PATIENT FILE (from intake form):
-- Basic Info: ${patientData?.age || '?'}yr ${patientData?.gender || 'Unknown'}, Weight: ${patientData?.weight || 'Unknown'}kg
-- Lifestyle: Diet: ${patientData?.diet || 'Unknown'}, Exercise: ${patientData?.exercise || 'Unknown'}, Sleep: ${patientData?.sleep || '?'} hrs/night, Water: ${patientData?.waterIntake || '?'} L/day
-- Existing Symptoms Map: Fever: ${patientData?.fever || 'Unknown'}, Pain: ${patientData?.pain || 'Unknown'}, Fatigue: ${patientData?.fatigue || 'Unknown'}
-- Digestion/Bowels: ${patientData?.digestion || 'Unknown'}
-- Medical History: ${patientData?.medicalHistory || 'Unknown'}
-- Meds: ${patientData?.medications || 'Unknown'}
-- Primary Concern: ${patientData?.symptoms || 'None'}
-
-CONVERSATION HANDLING:
-- If the patient engages in small talk or expressions of discomfort (e.g., "not feeling well"), acknowledge it empathetically ("I'm sorry you're feeling this way..."), but gently and firmly guide the conversation back to specific medical symptoms. 
-- Avoid unnecessary casual conversation while remaining deeply empathetic.
-
-CORE FLOW:
-1. First message: Greet the patient warmly and empathetically in ${patientLanguage}. Acknowledge their primary concern reassuringly. Example: "Hi, I'm here to help you. Take your time and tell me what you're feeling..."
-2. Ask smart follow-up questions to clarify their condition. ASK ONLY ONE QUESTION AT A TIME. Avoid repetitive queries. Leverage the patient file data so you don't ask what you already know.
-3. Keep your questions short, focused, and context-aware.
-4. Aim to ask between 3 and 6 relevant follow-up questions in total.
-5. ONCE you have collected enough information to build clear understanding and confidence, you MUST provide a final medical summary structured report as a JSON block. 
-
-When you output JSON, YOU MUST NOT OUTPUT ANYTHING ELSE. NO markdown blockticks. ONLY RAW JSON matching this exact schema:
-{
-  "type": "report",
-  "conditions": ["Probable Condition 1", "Probable Condition 2 (if any)"],
-  "riskLevel": "Low" | "Medium" | "High",
-  "suggestedTests": ["Clear rest/hydration guidelines", "Or consult doctor", "Or specific lab test"],
-  "summary": "A logical assumption of the condition (not definitive diagnosis) with clear next steps maintaining a reassuring, simple tone."
-}`
-    };
-  };
+RULES:
+1. Begin with a warm greeting referencing their chief complaint.  
+2. Ask only ONE focused follow-up question at a time. 3-6 questions maximum.
+3. If patient does small talk, empathize briefly, redirect to clinical context.
+4. When you have enough data, output ONLY raw JSON (no markdown, no fences):
+{"type":"report","conditions":["..."],"riskLevel":"Low|Medium|High","suggestedTests":["..."],"summary":"..."}`
+  });
 
   const startAIChat = async () => {
-    const sysPrompt = getSystemPrompt();
-    const initialQuery = { role: 'user', content: `Hello, I am ready to start my diagnosis based on the symptoms I provided. Please speak to me in ${patientLanguage}.` };
-    
-    const apiResponse = await sendToOpenAI([sysPrompt, initialQuery]);
-    if (apiResponse?.error) {
-      setErrorMsg(apiResponse.error);
-      return;
-    }
-    
-    const newMsgObj = { sender: 'ai', text: apiResponse, role: 'assistant', internalApiState: [sysPrompt, initialQuery, { role: 'assistant', content: apiResponse }] };
-    setMessages([newMsgObj]);
-    setAiChatHistory([newMsgObj]);
+    const sys = getSystemPrompt();
+    const init = { role: 'user', content: `Hello, ready to begin my consultation. Please speak in ${patientLanguage}.` };
+    const res = await sendToOpenAI([sys, init]);
+    if (res?.error) { setErrorMsg(res.error); return; }
+    const msg = { sender: 'ai', text: res, internalApiState: [sys, init, { role: 'assistant', content: res }] };
+    setMessages([msg]);
+    setAiChatHistory([msg]);
   };
 
-  const processResponseJSON = (response, apiState, newUserMsgObj) => {
+  const tryParseReport = (text, state, userMsg) => {
     try {
-      const cleanedText = response.replace(/```json/g, '').replace(/```/g, '').trim();
-      if (cleanedText.startsWith('{') && cleanedText.includes('"type"')) {
-          const parsedReport = JSON.parse(cleanedText);
-          if (parsedReport.type === 'report' || parsedReport.type === 'summary') {
-              setReportData(parsedReport);
-              
-              const finishMsg = "Diagnosis complete. Generating structured clinical summary...";
-              setAiChatHistory([...messages, newUserMsgObj, { sender: 'ai', text: finishMsg, role: 'assistant' }]);
-              navigate('/report');
-              return true;
-          }
+      const clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      if (clean.startsWith('{') && clean.includes('"type"')) {
+        const parsed = JSON.parse(clean);
+        if (parsed.type === 'report') {
+          setReportData(parsed);
+          setGenerating(true);
+          setTimeout(() => { setGenProgress(100); setTimeout(() => navigate('/report'), 600); }, 1200);
+          return true;
+        }
       }
-    } catch (err) {}
+    } catch {}
     return false;
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
+  const handleSend = async (e) => {
+    e?.preventDefault();
     if (!inputVal.trim() || isProcessing) return;
-
-    const userText = inputVal.trim();
+    const text = inputVal.trim();
     setInputVal('');
     setErrorMsg(null);
-
-    const lastMsg = messages[messages.length - 1];
-    let apiState = lastMsg?.internalApiState || [getSystemPrompt()];
-    
-    const newUserMsgObj = { sender: 'user', text: userText, role: 'user' };
-    setMessages(prev => [...prev, newUserMsgObj]);
-    
-    apiState = [...apiState, { role: 'user', content: userText }];
-    const response = await sendToOpenAI(apiState);
-
-    if (response?.error) {
-       setErrorMsg(response.error);
-       return;
-    }
-
-    if (processResponseJSON(response, apiState, newUserMsgObj)) return;
-
-    const newAiMsgObj = { sender: 'ai', text: response, role: 'assistant', internalApiState: [...apiState, { role: 'assistant', content: response }] };
-    setMessages(prev => {
-       const finalArr = [...prev, newAiMsgObj];
-       setAiChatHistory(finalArr);
-       return finalArr;
-    });
+    const last = messages[messages.length - 1];
+    let state = last?.internalApiState || [getSystemPrompt()];
+    const userMsg = { sender: 'user', text };
+    setMessages(p => [...p, userMsg]);
+    state = [...state, { role: 'user', content: text }];
+    const res = await sendToOpenAI(state);
+    if (res?.error) { setErrorMsg(res.error); return; }
+    if (tryParseReport(res, state, userMsg)) return;
+    const aiMsg = { sender: 'ai', text: res, internalApiState: [...state, { role: 'assistant', content: res }] };
+    setMessages(p => { const arr = [...p, aiMsg]; setAiChatHistory(arr); return arr; });
   };
 
-  const handleSaveFormEdit = async () => {
+  const handleSaveEdit = async () => {
     setPatientData(editForm);
-    setIsEditModalOpen(false);
-
-    // Inject system update so AI knows the data changed
-    const systemUpdateMsg = { 
-       role: 'system', 
-       content: `SYSTEM ALERT: The patient has updated their intake form. New Symptom/Data state: Fever: ${editForm.fever}, Pain: ${editForm.pain}, Fatigue: ${editForm.fatigue}, Symptoms: ${editForm.symptoms}, Meds: ${editForm.medications}. Please acknowledge this update briefly in one empathetic sentence, and confirm it with the user, then proceed with the diagnosis where you left off.`
-    };
-
-    const lastMsg = messages[messages.length - 1];
-    let apiState = lastMsg?.internalApiState || [getSystemPrompt()];
-    apiState = [...apiState, systemUpdateMsg];
-
-    // Show a small inline system note to the user
-    const systemNotice = { sender: 'system', text: "Form updated successfully. AI is reviewing changes...", role: 'system' };
-    setMessages(prev => [...prev, systemNotice]);
-
-    const response = await sendToOpenAI(apiState);
-    if (response?.error) {
-        setErrorMsg(response.error);
-        return;
-    }
-
-    if (processResponseJSON(response, apiState, systemNotice)) return;
-
-    const newAiMsgObj = { sender: 'ai', text: response, role: 'assistant', internalApiState: [...apiState, { role: 'assistant', content: response }] };
-    setMessages(prev => {
-       const finalArr = [...prev, newAiMsgObj];
-       setAiChatHistory(finalArr);
-       return finalArr;
-    });
+    setEditOpen(false);
+    const last = messages[messages.length - 1];
+    let state = last?.internalApiState || [getSystemPrompt()];
+    const sysUpdate = { role: 'system', content: `Patient updated their intake data. New key info: Symptoms: ${editForm.symptoms}, Fever: ${editForm.fever}, Pain: ${editForm.pain}, Medications: ${editForm.medications}. Acknowledge briefly and continue.` };
+    state = [...state, sysUpdate];
+    const notice = { sender: 'system', text: 'Intake data updated. Updating clinical assessment...' };
+    setMessages(p => [...p, notice]);
+    const res = await sendToOpenAI(state);
+    if (res?.error) { setErrorMsg(res.error); return; }
+    if (tryParseReport(res, state, notice)) return;
+    const aiMsg = { sender: 'ai', text: res, internalApiState: [...state, { role: 'assistant', content: res }] };
+    setMessages(p => { const arr = [...p, aiMsg]; setAiChatHistory(arr); return arr; });
   };
 
-  const renderFormEditModal = () => (
-    <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Intake Form">
-      <div className="space-y-4 max-h-[60vh] overflow-y-auto px-2">
-         <div className="form-control">
-            <label className="label"><span className="label-text">Primary Symptoms</span></label>
-            <textarea className="textarea textarea-bordered" value={editForm.symptoms || ''} onChange={e => setEditForm({...editForm, symptoms: e.target.value})}></textarea>
-         </div>
-         <div className="grid grid-cols-2 gap-4">
-            <div className="form-control">
-               <label className="label"><span className="label-text">Fever</span></label>
-               <select className="select select-bordered" value={editForm.fever || 'no'} onChange={e => setEditForm({...editForm, fever: e.target.value})}>
-                 <option value="no">No Fever</option>
-                 <option value="mild">Mild (99-100°F)</option>
-                 <option value="high">High (above 101°F)</option>
-               </select>
-            </div>
-            <div className="form-control">
-               <label className="label"><span className="label-text">Pain</span></label>
-               <select className="select select-bordered" value={editForm.pain || 'none'} onChange={e => setEditForm({...editForm, pain: e.target.value})}>
-                 <option value="none">No pain</option>
-                 <option value="mild">Mild pain</option>
-                 <option value="moderate">Moderate pain</option>
-                 <option value="severe">Severe pain</option>
-               </select>
-            </div>
-         </div>
-         <div className="form-control">
-            <label className="label"><span className="label-text">Current Medications</span></label>
-            <input type="text" className="input input-bordered" value={editForm.medications || ''} onChange={e => setEditForm({...editForm, medications: e.target.value})} />
-         </div>
-      </div>
-      <div className="modal-action">
-         <Button onClick={() => setIsEditModalOpen(false)} variant="ghost">Cancel</Button>
-         <Button onClick={handleSaveFormEdit} variant="primary">Save Changes</Button>
-      </div>
-    </Modal>
-  );
+  const today = new Date().toLocaleString('en-US', { weekday: 'long', hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="max-w-4xl mx-auto h-[calc(100vh-6rem)] p-4 flex flex-col pt-6 relative">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Bot className="text-primary"/> Dr. Ai Diagnosis</h1>
-        
-        <div className="flex items-center gap-2 bg-base-200 p-1 rounded-lg">
-          <Button variant="ghost" className="btn-sm text-base-content/70" onClick={() => setIsEditModalOpen(true)}>
-             <Edit3 size={16} className="mr-1"/> Edit Form
-          </Button>
-          <div className="divider divider-horizontal m-0 p-0"></div>
-          <div className="flex items-center px-2 text-sm font-medium gap-2">
-            <Globe size={16} className="text-primary"/>
-            <select 
-              className="select select-ghost select-sm px-1 font-bold"
-              value={patientLanguage}
-              onChange={(e) => setPatientLanguage(e.target.value)}
-            >
-              <option value="English">English</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Bangla">Bangla</option>
-            </select>
+    <div className="flex h-full overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+
+        {/* Chat messages */}
+        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+          {/* Date stamp */}
+          <div className="text-center">
+            <span className="text-xs bg-white border border-gray-200 rounded-full px-4 py-1.5 text-gray-400 font-medium uppercase tracking-wider">
+              TODAY, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
-        </div>
-      </div>
 
-      {errorMsg && (
-        <div className="alert alert-error mb-4 shadow-sm py-3 animate-fade-in-up">
-          <AlertTriangle size={20} />
-          <span>{errorMsg}</span>
-        </div>
-      )}
+          {errorMsg && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm flex items-start gap-2 fade-in">
+              <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
-      {renderFormEditModal()}
-
-      <div className="glass-card flex-grow flex flex-col mb-4 overflow-hidden border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.05)]">
-        <div className="flex-grow overflow-y-auto p-6 space-y-6">
-          {messages.map((msg, idx) => {
-            if (msg.sender === 'system') {
-               return (
-                 <div key={idx} className="flex justify-center animate-fade-in-up my-4">
-                    <span className="badge badge-neutral bg-base-300 text-xs px-4 py-3">{msg.text}</span>
-                 </div>
-               );
-            }
+          {messages.map((msg, i) => {
+            if (msg.sender === 'system') return (
+              <div key={i} className="text-center fade-in">
+                <span className="text-xs bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-full px-4 py-1.5">{msg.text}</span>
+              </div>
+            );
 
             return (
-              <div key={idx} className={`chat ${msg.sender === 'user' ? 'chat-end' : 'chat-start'} animate-fade-in-up`}>
-                <div className="chat-image avatar">
-                  <div className={`w-10 rounded-full flex items-center justify-center ${msg.sender === 'user' ? 'bg-secondary' : 'bg-primary'}`}>
-                    {msg.sender === 'user' ? <User className="text-white m-2" /> : <Bot className="text-white m-2" />}
-                  </div>
+              <div key={i} className={`flex items-start gap-3 animate-in ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
+                {/* Avatar */}
+                <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white text-sm
+                  ${msg.sender === 'ai' ? '' : 'bg-gray-300'}`}
+                  style={msg.sender === 'ai' ? { background: '#2d6a00' } : {}}>
+                  {msg.sender === 'ai' ? <Bot size={18} /> : <User size={18} />}
                 </div>
-                <div className={`chat-bubble whitespace-pre-line shadow-lg max-w-[85%] font-medium tracking-wide ${msg.sender === 'user' ? 'bg-white text-drtext border border-drprimary/20' : 'bg-gradient-to-tr from-drprimary to-draccent text-[#112211] border border-white/40 shadow-[0_4px_25px_rgba(164,221,0,0.4)]'}`}>
-                  {msg.text}
+
+                <div className={`max-w-lg ${msg.sender === 'user' ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+                  {msg.sender === 'ai' && (
+                    <span className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#2d6a00' }}>DR. AI ASSISTANT</span>
+                  )}
+                  <div className={msg.sender === 'ai' ? 'msg-ai' : 'msg-user'}>
+                    <p className="text-sm text-gray-800 whitespace-pre-line leading-relaxed">{msg.text}</p>
+                  </div>
+                  {msg.sender === 'user' && (
+                    <button onClick={() => setEditOpen(true)} className="btn-ghost-green self-end">
+                      <Edit3 size={11} /> EDIT INTAKE DATA
+                    </button>
+                  )}
                 </div>
               </div>
             );
           })}
-          
-          {isProcessing && (
-             <div className="chat chat-start">
-               <div className="chat-image avatar">
-                 <div className="w-10 rounded-full flex items-center justify-center bg-primary">
-                   <Bot className="text-white m-2" />
-                 </div>
-               </div>
-               <div className="chat-bubble bg-white/60 text-drtext border border-drprimary/20 shadow-sm flex items-center gap-2 font-medium tracking-wide">
-                 <span className="loading loading-dots loading-sm text-primary"></span>
-                 Dr. Ai is analyzing...
-               </div>
-             </div>
+
+          {/* Typing / Generating indicator */}
+          {isProcessing && !generating && (
+            <div className="flex items-start gap-3 animate-in">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: '#2d6a00' }}>
+                <Bot size={18} />
+              </div>
+              <div className="msg-ai">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Loader2 size={14} className="animate-spin" style={{ color: '#2d6a00' }} />
+                  Updating clinical assessment with information...
+                </div>
+              </div>
+            </div>
           )}
+
+          {generating && (
+            <div className="flex items-start gap-3 animate-in">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: '#2d6a00' }}>
+                <Bot size={18} />
+              </div>
+              <div className="msg-ai min-w-[300px]">
+                <p className="text-sm text-gray-500 italic mb-3">Generating Intelligent Clinical Summary...</p>
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                    <div className="w-6 h-6 rounded bg-green-50 flex items-center justify-center">
+                      <Bot size={12} style={{ color: '#2d6a00' }} />
+                    </div>
+                    <span className="font-semibold">Generating Clinical Summary</span>
+                    <span className="ml-auto font-bold" style={{ color: '#2d6a00' }}>{Math.round(genProgress)}%</span>
+                  </div>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${genProgress}%` }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
-        
-        <div className="bg-white/40 backdrop-blur-md border-t border-drprimary/10 p-4 z-20">
-           <form onSubmit={handleSendMessage} className="flex gap-3 relative">
-             <input 
-               type="text" 
-               className="input glass-input flex-grow rounded-xl pl-4 pr-12 font-medium" 
-               placeholder={isProcessing ? "Waiting for AI..." : `Type your answer in ${patientLanguage}...`}
-               value={inputVal}
-               onChange={e => setInputVal(e.target.value)}
-               disabled={isProcessing}
-               autoFocus
-             />
-             <button type="submit" className="btn-glowing absolute right-2 top-1.5 bottom-1.5 w-10 flex items-center justify-center rounded-lg" disabled={isProcessing || !inputVal.trim()}>
-               <Send size={18}/>
-             </button>
-           </form>
+
+        {/* Input bar */}
+        <div className="bg-white border-t border-gray-200 px-6 py-4">
+          <form onSubmit={handleSend} className="flex items-center gap-3 bg-white border border-gray-300 rounded-2xl px-4 py-2.5 shadow-sm focus-within:border-green-500 transition-colors">
+            <button type="button" className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+              <Paperclip size={18} />
+            </button>
+            <input
+              type="text"
+              className="flex-1 text-sm bg-transparent outline-none text-gray-800 placeholder-gray-400"
+              placeholder={`Describe your symptoms with Dr. Ai...`}
+              value={inputVal}
+              onChange={e => setInputVal(e.target.value)}
+              disabled={isProcessing || generating}
+              autoFocus
+            />
+            <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
+              <Globe size={14} className="text-gray-400" />
+              <select 
+                className="text-xs font-semibold bg-transparent outline-none text-gray-600 cursor-pointer"
+                value={patientLanguage}
+                onChange={e => setPatientLanguage(e.target.value)}
+              >
+                <option value="English">EN</option>
+                <option value="Hindi">HI</option>
+                <option value="Bangla">BN</option>
+              </select>
+            </div>
+            <button type="submit"
+              disabled={isProcessing || generating || !inputVal.trim()}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white flex-shrink-0 disabled:opacity-40 transition-opacity"
+              style={{ background: '#2d6a00' }}
+            >
+              <Send size={15} />
+            </button>
+          </form>
+          <p className="text-center text-xs text-gray-400 mt-2 flex items-center justify-center gap-1.5">
+            <ShieldCheck size={11} style={{ color: '#2d6a00' }} />
+            HIPAA Compliant • AES-256 Encryption active
+          </p>
         </div>
       </div>
+
+      {/* Edit Intake Modal */}
+      {editOpen && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+            <h3 className="text-lg font-bold mb-4">Edit Intake Data</h3>
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">Primary Symptoms</label>
+                <textarea className="clinical-input" rows={2} value={editForm.symptoms || ''} onChange={e => setEditForm(f => ({ ...f, symptoms: e.target.value }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Fever</label>
+                  <select className="clinical-input" value={editForm.fever || 'no'} onChange={e => setEditForm(f => ({ ...f, fever: e.target.value }))}>
+                    <option value="no">No Fever</option>
+                    <option value="mild">Mild</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Pain</label>
+                  <select className="clinical-input" value={editForm.pain || 'none'} onChange={e => setEditForm(f => ({ ...f, pain: e.target.value }))}>
+                    <option value="none">No pain</option>
+                    <option value="mild">Mild</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="severe">Severe</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">Current Medications</label>
+                <input className="clinical-input" value={editForm.medications || ''} onChange={e => setEditForm(f => ({ ...f, medications: e.target.value }))} />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5 justify-end">
+              <button className="btn-outline py-2 px-4 text-sm" onClick={() => setEditOpen(false)}>Cancel</button>
+              <button className="btn-primary py-2 px-4 text-sm" onClick={handleSaveEdit}>Save & Notify AI</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

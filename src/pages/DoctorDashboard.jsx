@@ -1,127 +1,94 @@
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Users, FileText, ClipboardList } from 'lucide-react';
-import Card from '../components/Card';
-import Button from '../components/Button';
-import Badge from '../components/Badge';
+import { Users, FileText, Bot, Plus, ArrowRight, Clock } from 'lucide-react';
+
+const MOCK_PATIENTS = [
+  { id: 'PT-001', name: 'Sarah Johnson', age: 34, issue: 'Recurring headache, light sensitivity', time: '10:42 AM', risk: 'Medium' },
+  { id: 'PT-002', name: 'Alex Kumar', age: 28, issue: 'Chest tightness after exercise', time: '11:15 AM', risk: 'High' },
+  { id: 'PT-003', name: 'Maria Chen', age: 52, issue: 'Fatigue and mild fever for 3 days', time: '11:50 AM', risk: 'Low' },
+];
+
+const riskColors = { Low: '#16a34a', Medium: '#d97706', High: '#dc2626' };
+const riskBg    = { Low: '#f0fdf4', Medium: '#fffbeb', High: '#fef2f2' };
 
 export default function DoctorDashboard() {
-  const { patientData, reportData, prescriptionData } = useAppContext();
+  const { reportData } = useAppContext();
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-5xl mx-auto p-6 animate-fade-in-up">
+    <div className="p-8 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold flex items-center gap-3 mb-2">
-          <Users className="text-secondary w-8 h-8" />
-          Doctor Dashboard
-        </h1>
-        <p className="text-base-content/70">Welcome Dr. Ai! Here is your patient queue.</p>
+        <h1 className="text-3xl font-black text-gray-900">Doctor Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">Welcome, Provider. Here is your patient queue for today.</p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Patient List (Mock) */}
-        <div className="lg:col-span-1 space-y-4 z-10">
-           <h2 className="text-xl font-semibold mb-4 px-2">Active Patients</h2>
-           <Card className="cursor-pointer border-secondary shadow-md relative overflow-hidden">
-             <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
-             <div className="flex justify-between items-start mb-2">
-               <div>
-                 <h3 className="font-bold">John Doe</h3>
-                 <p className="text-xs text-base-content/60">ID #29381</p>
-               </div>
-               <Badge color={reportData ? reportData.riskLevel === 'High' ? 'error' : 'warning' : 'info'} className="text-xs p-2">
-                  {reportData ? `${reportData.riskLevel} Risk` : 'New Patient'}
-               </Badge>
-             </div>
-             <p className="text-sm truncate opacity-80 mb-3">
-               {patientData?.symptoms ? `Symptoms: ${patientData.symptoms}` : 'Waiting for symptoms submission...'}
-             </p>
-             <div className="text-xs font-semibold text-secondary">Currently Selected</div>
-           </Card>
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {[
+          { label: 'Active Patients', value: '3', icon: <Users size={20} style={{ color: '#2d6a00' }} /> },
+          { label: 'Reports Ready', value: reportData ? '1' : '0', icon: <FileText size={20} style={{ color: '#2d6a00' }} /> },
+          { label: 'AI Consultations', value: '12', icon: <Bot size={20} style={{ color: '#2d6a00' }} /> },
+        ].map(s => (
+          <div key={s.label} className="clinical-card flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#f0f7e8' }}>
+              {s.icon}
+            </div>
+            <div>
+              <div className="text-2xl font-black text-gray-900">{s.value}</div>
+              <div className="text-xs text-gray-400 font-medium">{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-           <Card className="opacity-50 pointer-events-none">
-             <div className="flex justify-between items-start mb-2">
-               <div>
-                 <h3 className="font-bold">Jane Smith</h3>
-                 <p className="text-xs text-base-content/60">ID #29382</p>
-               </div>
-               <Badge color="success" className="text-xs p-2">Low Risk</Badge>
-             </div>
-             <p className="text-sm truncate">Follow up check-up...</p>
-           </Card>
+      {/* Patient Queue */}
+      <div className="clinical-card mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-gray-900">Patient Queue</h2>
+          <span className="text-xs bg-green-50 text-green-700 border border-green-200 rounded-full px-3 py-1 font-semibold">
+            {MOCK_PATIENTS.length} Waiting
+          </span>
         </div>
-
-        {/* Selected Patient Details */}
-        <div className="lg:col-span-2">
-           <Card className="h-full" noPadding>
-             {!patientData ? (
-                <div className="flex flex-col items-center justify-center p-12 text-center h-full">
-                  <ClipboardList className="w-16 h-16 text-base-content/10 mb-4" />
-                  <h3 className="text-xl font-bold mb-2">No Active Data</h3>
-                  <p className="text-base-content/50">The patient has not submitted their health profile yet.</p>
+        <div className="space-y-3">
+          {MOCK_PATIENTS.map(p => (
+            <div key={p.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600">
+                  {p.name.charAt(0)}
                 </div>
-             ) : (
-                <div className="p-6">
-                  <div className="flex justify-between items-end border-b border-base-300 pb-4 mb-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-secondary">John Doe</h2>
-                      <div className="flex gap-4 mt-2 text-sm text-base-content/70">
-                        <span>Age: 34</span>
-                        <span>Gender: M</span>
-                        <span>Blood: O+</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-8 mb-8">
-                     <div>
-                       <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                         <ClipboardList className="w-5 h-5" /> Patient Intake
-                       </h3>
-                       <div className="bg-base-200 p-4 rounded-lg text-sm space-y-2">
-                         <p><strong>Diet:</strong> <span className="capitalize">{patientData.diet}</span></p>
-                         <p><strong>Exercise:</strong> <span className="capitalize">{patientData.exercise}</span></p>
-                         <p><strong>Sleep:</strong> {patientData.sleep} hrs</p>
-                         <p><strong>Symptoms:</strong> {patientData.symptoms}</p>
-                       </div>
-                     </div>
-
-                     <div className="space-y-4">
-                       <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                         <FileText className="w-5 h-5" /> AI Actions
-                       </h3>
-                       
-                       {reportData ? (
-                         <Button className="w-full justify-between" onClick={() => navigate('/report')}>
-                           Review AI Report <span className="badge badge-sm badge-secondary">Ready</span>
-                         </Button>
-                       ) : (
-                         <div className="p-4 bg-base-200/50 rounded-lg text-center text-sm border border-dashed border-base-300">
-                           AI Diagnosis in progress...
-                         </div>
-                       )}
-
-                       {prescriptionData ? (
-                         <Button className="w-full justify-between" variant="outline" onClick={() => navigate('/prescription')}>
-                           View Prescription <span className="badge badge-sm badge-success">Done</span>
-                         </Button>
-                       ) : (
-                         <Button 
-                           className="w-full justify-between" 
-                           variant="primary" 
-                           disabled={!reportData} 
-                           onClick={() => navigate('/prescription')}
-                         >
-                           Issue Prescription {reportData && <span className="badge badge-sm">Required</span>}
-                         </Button>
-                       )}
-                     </div>
-                  </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">{p.name}</div>
+                  <div className="text-xs text-gray-400">{p.age} yrs • {p.issue}</div>
                 </div>
-             )}
-           </Card>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <Clock size={11} /> {p.time}
+                </div>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ color: riskColors[p.risk], background: riskBg[p.risk] }}>
+                  {p.risk}
+                </span>
+                <button className="btn-ghost-green" onClick={() => navigate('/report')}>
+                  View Report <ArrowRight size={12} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 gap-4">
+        <button className="clinical-card text-left hover:border-green-200 transition-colors group" onClick={() => navigate('/report')}>
+          <FileText size={20} style={{ color: '#2d6a00' }} className="mb-2" />
+          <div className="font-bold text-gray-900">View AI Report</div>
+          <div className="text-xs text-gray-400 mt-1">Review the latest AI clinical summary</div>
+        </button>
+        <button className="clinical-card text-left hover:border-green-200 transition-colors group" onClick={() => navigate('/prescription')}>
+          <Plus size={20} style={{ color: '#2d6a00' }} className="mb-2" />
+          <div className="font-bold text-gray-900">Issue Prescription</div>
+          <div className="text-xs text-gray-400 mt-1">Generate a digital Rx for a patient</div>
+        </button>
       </div>
     </div>
   );

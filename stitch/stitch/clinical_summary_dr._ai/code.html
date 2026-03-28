@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Report | Dr. Ai</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#e5e9eb",
+                        "background": "#f5f7f9",
+                        "primary-fixed": "#b1fe4d",
+                        "on-surface": "#2c2f31",
+                        "on-tertiary-fixed": "#304a00",
+                        "secondary-dim": "#205854",
+                        "surface-container-low": "#eef1f3",
+                        "primary-container": "#b1fe4d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#3d5e00",
+                        "primary-fixed-dim": "#a4ef3f",
+                        "on-primary-fixed-variant": "#416a00",
+                        "on-background": "#2c2f31",
+                        "error": "#b02500",
+                        "on-primary-container": "#3a5f00",
+                        "tertiary-fixed-dim": "#aaee3d",
+                        "surface-dim": "#d0d5d8",
+                        "tertiary-fixed": "#b8fd4b",
+                        "surface-bright": "#f5f7f9",
+                        "on-primary": "#daffa9",
+                        "on-error": "#ffefec",
+                        "on-tertiary": "#dbffa3",
+                        "surface": "#f5f7f9",
+                        "outline": "#747779",
+                        "primary-dim": "#365900",
+                        "inverse-primary": "#b1fe4d",
+                        "tertiary": "#426500",
+                        "tertiary-container": "#b8fd4b",
+                        "tertiary-dim": "#395800",
+                        "error-container": "#f95630",
+                        "outline-variant": "#abadaf",
+                        "on-secondary-fixed-variant": "#2e6460",
+                        "surface-container-highest": "#d9dde0",
+                        "on-surface-variant": "#595c5e",
+                        "on-secondary": "#c5fef7",
+                        "inverse-surface": "#0b0f10",
+                        "secondary-fixed-dim": "#a7dfd9",
+                        "surface-tint": "#3f6600",
+                        "secondary": "#2e6460",
+                        "on-secondary-container": "#225a56",
+                        "inverse-on-surface": "#9a9d9f",
+                        "on-tertiary-fixed-variant": "#456900",
+                        "error-dim": "#b92902",
+                        "on-error-container": "#520c00",
+                        "on-primary-fixed": "#2d4b00",
+                        "surface-variant": "#d9dde0",
+                        "secondary-fixed": "#b5ede7",
+                        "surface-container-high": "#dfe3e6",
+                        "primary": "#3f6600",
+                        "on-secondary-fixed": "#084743",
+                        "secondary-container": "#b5ede7"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            .report-page { 
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                width: 100% !important; 
+                border: none !important;
+            }
+            .glass-effect { backdrop-filter: none !important; background: white !important; }
+        }
+        .report-page {
+            max-width: 850px;
+            margin: 2rem auto;
+            min-height: 1100px;
+            background: white;
+            padding: 4rem;
+            position: relative;
+        }
+        .glass-effect {
+            backdrop-filter: blur(24px);
+            background: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-background antialiased">
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-slate-50 border-r border-slate-200 no-print">
+<div class="p-8 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">clinical_notes</span>
+</div>
+<div>
+<h2 class="text-xl font-black text-lime-600 tracking-tighter leading-none">Dr. Ai</h2>
+<p class="text-[10px] font-medium text-slate-500 uppercase tracking-widest mt-1">Clinical Intelligence</p>
+</div>
+</div>
+<nav class="flex-1 mt-4 space-y-1">
+<a class="text-slate-500 hover:bg-slate-200 rounded-xl mx-2 px-4 py-3 flex items-center gap-3 transition-transform hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-sm font-medium">Overview</span>
+</a>
+<a class="text-slate-500 hover:bg-slate-200 rounded-xl mx-2 px-4 py-3 flex items-center gap-3 transition-transform hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-['Inter'] text-sm font-medium">Intake Form</span>
+</a>
+<a class="text-slate-500 hover:bg-slate-200 rounded-xl mx-2 px-4 py-3 flex items-center gap-3 transition-transform hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-['Inter'] text-sm font-medium">Consultations</span>
+</a>
+<a class="bg-lime-100 text-lime-800 rounded-xl mx-2 px-4 py-3 flex items-center gap-3 transition-transform hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="font-['Inter'] text-sm font-medium">Medical Records</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200">
+<button class="w-full bg-error text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
+<span class="material-symbols-outlined">emergency</span>
+                Emergency Triage
+            </button>
+<div class="mt-4 space-y-1">
+<a class="text-slate-500 hover:bg-slate-200 rounded-xl px-4 py-2 flex items-center gap-3 text-sm transition-transform hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+                </a>
+<a class="text-slate-500 hover:bg-slate-200 rounded-xl px-4 py-2 flex items-center gap-3 text-sm transition-transform hover:scale-[1.02]" href="#">
+<span class="material-symbols-outlined">logout</span> Sign Out
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-64 min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-white/60 backdrop-blur-3xl sticky top-0 z-50 flex justify-between items-center w-full px-8 py-4 shadow-[0_20px_40px_rgba(44,47,49,0.06)] no-print">
+<div class="flex items-center gap-8">
+<h1 class="text-2xl font-bold text-lime-600 tracking-tighter">Dr. Ai</h1>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-slate-600 hover:text-lime-600 font-semibold tracking-tight transition-colors" href="#">Dashboard</a>
+<a class="text-slate-600 hover:text-lime-600 font-semibold tracking-tight transition-colors" href="#">AI Assistant</a>
+<a class="text-lime-700 border-b-2 border-lime-500 pb-1 font-semibold tracking-tight" href="#">Reports</a>
+<a class="text-slate-600 hover:text-lime-600 font-semibold tracking-tight transition-colors" href="#">Help</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-sm font-semibold text-lime-600 bg-lime-50 px-4 py-2 rounded-full">Role: Patient</span>
+<div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a medical practitioner in a clean clinical environment with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtxqMq-NLN8ASC4Og6t_9cwOYLHJf048-kfxUPCK-VnEzZE1aHDM_unXOr0DIdkIskl-PpNjZkGJdEFJixjubJztVzfAkakjuIUQ4Ja4bz9snahDSkM-zIgR4I9CmZKgeMmaBmLYWFa40IIlZAld3IfUjdqk9Qp-Zmo_vq5EhcO4KV0ZxsP595zl7HbUnXhXG0P7--83pkjAccYdVXDIE_aMPk2wo8vYp3gSdTEcQOFWYNejJxbDsjTqiLQbU7-rXdNk2OnALNMB4"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<section class="p-4 md:p-12 max-w-7xl mx-auto">
+<!-- Action Toolbar -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 no-print">
+<div>
+<h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Clinical Intelligence Report</h2>
+<p class="text-on-surface-variant mt-2">ID: #AI-88392-2024 • Generated Oct 24, 2024</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high text-on-surface font-semibold rounded-full hover:bg-surface-container-highest transition-all active:scale-95" onclick="window.print()">
+<span class="material-symbols-outlined">print</span> Print Report
+                    </button>
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high text-on-surface font-semibold rounded-full hover:bg-surface-container-highest transition-all active:scale-95">
+<span class="material-symbols-outlined">ios_share</span> Share
+                    </button>
+<button class="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary-fixed font-bold rounded-full shadow-lg shadow-primary/20 transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">download</span> Download PDF
+                    </button>
+</div>
+</div>
+<!-- Bento Layout for Stats (No-Line Principle) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 no-print">
+<div class="bg-surface-container-low p-8 rounded-xl">
+<span class="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">Triage Level</span>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-black text-on-surface">Stable</span>
+<span class="material-symbols-outlined text-lime-500 mb-1" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-xl">
+<span class="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">AI Confidence</span>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-black text-on-surface">98.4%</span>
+<div class="w-12 h-1 bg-surface-container-highest rounded-full mb-3">
+<div class="w-[98%] h-full bg-primary rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-xl">
+<span class="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">Action Items</span>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-black text-on-surface">03 Pending</span>
+<span class="material-symbols-outlined text-primary mb-1">notification_important</span>
+</div>
+</div>
+</div>
+<!-- The A4 Clinical Document -->
+<article class="report-page shadow-2xl rounded-xl border border-outline-variant/15 font-body">
+<!-- Document Header -->
+<div class="flex justify-between items-start border-b-4 border-primary pb-8 mb-12">
+<div>
+<h3 class="text-3xl font-black text-primary font-headline tracking-tighter mb-2">Dr. Ai Report</h3>
+<p class="text-sm font-bold text-on-surface/60">INTELLIGENT CLINICAL SUMMARY</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-on-surface">PATIENT: Alexander Thorne</p>
+<p class="text-sm text-on-surface-variant">DOB: 12/05/1985 (Age 39)</p>
+<p class="text-sm text-on-surface-variant">Gender: Male</p>
+</div>
+</div>
+<!-- Medical History Section -->
+<section class="mb-12">
+<h4 class="text-xs font-black uppercase tracking-[0.2em] text-on-surface-variant border-l-4 border-lime-400 pl-4 mb-6">01. Medical History &amp; Context</h4>
+<div class="space-y-6 text-on-surface leading-relaxed">
+<p class="font-medium text-lg">Presented with recurring acute respiratory discomfort following high-intensity aerobic activity. History indicates minor allergic rhinitis but no chronic pulmonary conditions.</p>
+<table class="w-full text-sm">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="text-left p-3 font-bold">Category</th>
+<th class="text-left p-3 font-bold">Details</th>
+<th class="text-left p-3 font-bold">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr>
+<td class="p-3 font-semibold">Pre-existing</td>
+<td class="p-3">Seasonal Allergies (Pollen/Dust)</td>
+<td class="p-3">Managed</td>
+</tr>
+<tr>
+<td class="p-3 font-semibold">Medications</td>
+<td class="p-3">Loratadine 10mg (As needed)</td>
+<td class="p-3">Active</td>
+</tr>
+<tr>
+<td class="p-3 font-semibold">Risk Factors</td>
+<td class="p-3">History of smoking (Quit 2015)</td>
+<td class="p-3">Monitoring</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- AI Assessment Section -->
+<section class="mb-12 bg-lime-50/30 p-8 rounded-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-8xl">smart_toy</span>
+</div>
+<h4 class="text-xs font-black uppercase tracking-[0.2em] text-primary border-l-4 border-primary pl-4 mb-6">02. Neural-Clinical AI Assessment</h4>
+<div class="space-y-4">
+<div class="flex gap-4">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 font-bold">1</span>
+<div>
+<h5 class="font-bold text-on-surface">Likely Diagnosis: Exercise-Induced Bronchospasm (EIB)</h5>
+<p class="text-on-surface-variant mt-1">Symptom patterns align with airway narrowing during physical exertion, likely exacerbated by current seasonal environmental triggers.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 font-bold">2</span>
+<div>
+<h5 class="font-bold text-on-surface">Cardiovascular Overlay</h5>
+<p class="text-on-surface-variant mt-1">Heart rate variability data remains within nominal ranges (65-142 BPM), suggesting low probability of cardiac origin for dyspnea.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommendations Section -->
+<section class="mb-12">
+<h4 class="text-xs font-black uppercase tracking-[0.2em] text-on-surface-variant border-l-4 border-lime-400 pl-4 mb-6">03. Clinical Recommendations</h4>
+<ul class="space-y-4">
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1">medication</span>
+<div>
+<strong class="block text-on-surface">Pulmonary Function Test (PFT)</strong>
+<span class="text-on-surface-variant text-sm">Schedule a spirometry test to confirm airway responsiveness post-exercise.</span>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1">monitoring</span>
+<div>
+<strong class="block text-on-surface">Enhanced Monitoring</strong>
+<span class="text-on-surface-variant text-sm">Log PEF (Peak Expiratory Flow) readings morning and evening for 14 days.</span>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1">fitness_center</span>
+<div>
+<strong class="block text-on-surface">Warm-up Protocol</strong>
+<span class="text-on-surface-variant text-sm">Implement a 15-minute gradual warm-up before high-intensity training.</span>
+</div>
+</li>
+</ul>
+</section>
+<!-- Footer Signature Area -->
+<div class="mt-20 pt-12 border-t border-surface-container flex justify-between items-end">
+<div class="text-xs text-on-surface-variant max-w-xs italic">
+                        Disclaimer: This AI-generated clinical summary is intended for professional review. It does not constitute a final medical diagnosis.
+                    </div>
+<div class="text-right">
+<div class="h-12 w-48 bg-surface-container-low mb-2 flex items-center justify-center text-slate-300 font-serif italic text-xl">Dr. Ai System Signature</div>
+<p class="font-bold text-on-surface">Digital Validation ID</p>
+<p class="text-[10px] text-on-surface-variant">0xFFFF-88392-A-LUMINOUS</p>
+</div>
+</div>
+</article>
+<!-- Bottom Note -->
+<div class="mt-12 text-center text-on-surface-variant text-sm no-print">
+<p>This report is HIPAA compliant and encrypted. All data processing occurred locally via Clinical Intelligence Nodes.</p>
+</div>
+</section>
+<!-- Footer Shell -->
+<footer class="flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full border-t border-slate-100 no-print">
+<div class="font-['Inter'] text-xs text-slate-500 uppercase tracking-widest mb-4 md:mb-0">
+                © 2024 Dr. Ai Clinical Systems. HIPAA Compliant.
+            </div>
+<nav class="flex gap-6">
+<a class="font-['Inter'] text-xs text-slate-400 hover:text-slate-600 uppercase tracking-widest hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="font-['Inter'] text-xs text-slate-400 hover:text-slate-600 uppercase tracking-widest hover:underline transition-all" href="#">Terms of Service</a>
+<a class="font-['Inter'] text-xs text-slate-400 hover:text-slate-600 uppercase tracking-widest hover:underline transition-all" href="#">Accessibility</a>
+<a class="font-['Inter'] text-xs text-slate-400 hover:text-slate-600 uppercase tracking-widest hover:underline transition-all" href="#">Contact Support</a>
+</nav>
+</footer>
+</main>
+<!-- Mobile Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 glass-effect p-4 flex justify-around items-center z-50 no-print">
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold mt-1">Overview</span>
+</button>
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">assignment</span>
+<span class="text-[10px] font-bold mt-1">Intake</span>
+</button>
+<button class="flex flex-col items-center text-lime-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="text-[10px] font-bold mt-1">Reports</span>
+</button>
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold mt-1">Settings</span>
+</button>
+</nav>
+<!-- Glowing Orbs (Luminous aesthetic) -->
+<div class="fixed top-[-10%] left-[-5%] w-[40vw] h-[40vw] bg-primary-fixed/10 rounded-full blur-[120px] pointer-events-none no-print"></div>
+<div class="fixed bottom-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-secondary-fixed/10 rounded-full blur-[120px] pointer-events-none no-print"></div>
+</body></html>

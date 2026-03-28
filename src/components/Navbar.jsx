@@ -1,54 +1,61 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Activity, LogOut, User, Stethoscope } from 'lucide-react';
-import Badge from './Badge';
+import { LayoutDashboard, Bot, FileText, HelpCircle, User, ChevronDown } from 'lucide-react';
 
 export default function Navbar() {
   const { role, setRole } = useAppContext();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setRole(null);
-    navigate('/');
-  };
+  const navLinks = [
+    { label: 'Dashboard', path: role === 'doctor' ? '/doctor' : '/patient' },
+    { label: 'AI Assistant', path: '/ai-chat' },
+    { label: 'Reports', path: '/report' },
+    { label: 'Help', path: '#' },
+  ];
 
   return (
-    <div className="navbar glass-panel sticky top-0 z-50 px-4 md:px-8 h-20 transition-all duration-300 border-b border-white/5">
-      <div className="flex-1">
-        <Link to={role === 'patient' ? '/patient' : role === 'doctor' ? '/doctor' : '/'} className="btn btn-ghost text-2xl gap-3 rounded-2xl hover:bg-white/5 transition-all">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-drprimary to-draccent shadow-lg shadow-drprimary/20">
-            <Activity className="text-white w-6 h-6" />
-          </div>
-          <span className="font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-drprimary via-draccent to-drsecondary">
-            Dr. Ai
-          </span>
-        </Link>
-      </div>
-      <div className="flex-none gap-6">
+    <header className="h-14 bg-white border-b border-gray-200 flex items-center px-6 gap-8 flex-shrink-0 z-40">
+      {/* Logo — only shown on landing */}
+      {!role && (
+        <Link to="/" className="text-lg font-bold text-gray-900 mr-4">Dr. Ai</Link>
+      )}
+
+      {/* Nav Links */}
+      {role && (
+        <nav className="flex items-center gap-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.path}
+              className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      )}
+
+      <div className="ml-auto flex items-center gap-3">
         {role && (
           <>
-            <div className="items-center gap-3 hidden sm:flex">
-               {role === 'patient' ? (
-                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-drprimary/10 border border-drprimary/20 text-drtext shadow-[0_0_15px_rgba(164,221,0,0.15)]">
-                   <User className="w-4 h-4 text-drprimary" />
-                   <span className="text-sm font-semibold tracking-wide">Patient Mode</span>
-                 </div>
-               ) : (
-                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-drsecondary/20 border border-drsecondary/50 text-drtext shadow-[0_0_15px_rgba(182,245,0,0.25)]">
-                   <Stethoscope className="w-4 h-4 text-draccent" />
-                   <span className="text-sm font-semibold tracking-wide">Doctor Mode</span>
-                 </div>
-               )}
+            {/* Language toggle */}
+            <div className="text-xs text-gray-500 border border-gray-200 rounded-full px-3 py-1.5 font-medium">
+              🌐 EN
             </div>
-            <button 
-              onClick={handleLogout} 
-              className="btn btn-ghost btn-circle hover:bg-red-500/10 hover:text-red-500 text-drtext/50 transition-colors tooltip tooltip-bottom" 
-              data-tip="Switch Role">
-              <LogOut size={20} />
-            </button>
+
+            {/* Role badge */}
+            <div className="flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1.5 text-xs font-semibold text-gray-700">
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+              Role: {role === 'patient' ? 'Patient' : 'Provider'}
+            </div>
+
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center cursor-pointer">
+              <User size={16} className="text-gray-500" />
+            </div>
           </>
         )}
       </div>
-    </div>
+    </header>
   );
 }

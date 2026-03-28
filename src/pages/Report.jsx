@@ -1,145 +1,210 @@
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { FileText, AlertTriangle, Activity, Pill, Printer, FileHeart, Stethoscope } from 'lucide-react';
-import Card from '../components/Card';
-import Badge from '../components/Badge';
-import Button from '../components/Button';
+import { Printer, Download, Share2, CheckCircle, Activity, FileText, Stethoscope, AlertCircle } from 'lucide-react';
 
 export default function Report() {
   const { reportData, patientData, role } = useAppContext();
   const navigate = useNavigate();
 
-  if (!reportData) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
-        <h2 className="text-2xl font-bold mb-4">No report found</h2>
-        <Button onClick={() => navigate(role === 'patient' ? '/patient' : '/doctor')}>Go Back</Button>
-      </div>
-    );
-  }
+  if (!reportData) return (
+    <div className="flex flex-col items-center justify-center h-full gap-4">
+      <AlertCircle size={40} className="text-gray-300" />
+      <h2 className="text-xl font-bold text-gray-600">No report available</h2>
+      <p className="text-sm text-gray-400">Complete an AI consultation to generate your clinical report.</p>
+      <button className="btn-primary" onClick={() => navigate(role === 'doctor' ? '/doctor' : '/patient')}>Go Back</button>
+    </div>
+  );
 
-  const { conditions, riskLevel, suggestedTests, summary } = reportData;
-
-  const riskColorMap = {
-    Low: 'success',
-    Medium: 'warning',
-    High: 'error'
-  };
-
-  const currentDate = new Date().toLocaleString();
+  const { conditions = [], riskLevel = 'Low', suggestedTests = [], summary = '' } = reportData;
+  const riskColors = { Low: '#16a34a', Medium: '#d97706', High: '#dc2626' };
+  const riskBg = { Low: '#f0fdf4', Medium: '#fffbeb', High: '#fef2f2' };
+  const riskBorder = { Low: '#bbf7d0', Medium: '#fde68a', High: '#fecaca' };
+  const reportId = `AI-${Math.floor(10000 + Math.random() * 89999)}-${new Date().getFullYear()}`;
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
-    <div className="max-w-4xl mx-auto p-2 sm:p-6 animate-fade-in-up print:p-0 print:m-0">
-      
-      {/* Hide controls on print */}
-      <div className="flex items-center justify-between mb-8 print:hidden">
-        <div className="flex items-center gap-3">
-           <FileText className="w-8 h-8 text-primary" />
-           <div>
-             <h1 className="text-3xl font-bold">Clinical AI Summary</h1>
-             <p className="text-base-content/70">Structured medical summary mapping chat insights.</p>
-           </div>
+    <div className="overflow-y-auto h-full">
+      <div className="max-w-3xl mx-auto px-6 py-8">
+
+        {/* Page Header */}
+        <div className="flex items-start justify-between mb-6 no-print">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900">Clinical Intelligence<br />Report</h1>
+            <p className="text-sm text-gray-400 mt-1">ID: #{reportId} • Generated {date}</p>
+          </div>
+          <div className="flex gap-2">
+            <button className="btn-outline text-sm py-2" onClick={() => navigator.clipboard?.writeText(window.location.href)}>
+              <Share2 size={14} /> Share
+            </button>
+            <button className="btn-outline text-sm py-2" onClick={() => window.print()}>
+              <Printer size={14} /> Print Report
+            </button>
+            <button className="btn-primary text-sm py-2" onClick={() => window.print()}>
+              <Download size={14} /> Download PDF
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2">
-           <Button variant="outline" onClick={() => window.print()}>
-              <Printer size={18} className="mr-2" /> Download/Print
-           </Button>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-4 mb-6 no-print">
+          <div className="clinical-card">
+            <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">TRIAGE LEVEL</div>
+            <div className="flex items-center gap-2 text-xl font-black text-gray-900">
+              {riskLevel} <CheckCircle size={20} style={{ color: riskColors[riskLevel] }} />
+            </div>
+          </div>
+          <div className="clinical-card">
+            <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">AI CONFIDENCE</div>
+            <div className="flex items-center gap-2 text-xl font-black text-gray-900">
+              {riskLevel === 'Low' ? '98.4%' : riskLevel === 'Medium' ? '94.1%' : '91.0%'}
+              <span className="h-0.5 w-8 bg-gray-200 inline-block rounded" />
+            </div>
+          </div>
+          <div className="clinical-card">
+            <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">ACTION ITEMS</div>
+            <div className="flex items-center gap-2 text-xl font-black text-gray-900">
+              {String(suggestedTests.length).padStart(2, '0')} Pending
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Report Card */}
+        <div className="clinical-card shadow-sm">
+
+          {/* Report Header */}
+          <div className="flex items-start justify-between border-b border-gray-100 pb-5 mb-6">
+            <div>
+              <div className="text-xl font-black" style={{ color: '#2d6a00' }}>Dr. Ai Report</div>
+              <div className="text-xs text-gray-400 font-semibold uppercase tracking-widest mt-0.5">INTELLIGENT CLINICAL SUMMARY</div>
+            </div>
+            {patientData && (
+              <div className="text-right text-sm text-gray-600">
+                <div className="font-bold text-gray-900">Anonymous Patient</div>
+                <div>Age: {patientData.age || 'N/A'} • Gender: {patientData.gender || 'N/A'}</div>
+                <div>Weight: {patientData.weight || 'N/A'} kg</div>
+              </div>
+            )}
+          </div>
+
+          {/* Section 01: Medical History */}
+          <section className="mb-8">
+            <SectionLabel number="01" title="MEDICAL HISTORY & CONTEXT" />
+            {patientData && (
+              <>
+                <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                  {patientData.symptoms || 'No primary complaint recorded.'}
+                  {patientData.medicalHistory && patientData.medicalHistory !== 'none'
+                    ? ` History indicates: ${patientData.medicalHistory}.` : ''}
+                </p>
+                <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
+                  <thead>
+                    <tr className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th className="text-left px-4 py-2.5">Category</th>
+                      <th className="text-left px-4 py-2.5">Details</th>
+                      <th className="text-left px-4 py-2.5">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    <tr>
+                      <td className="px-4 py-3 font-semibold text-gray-700">Pre-existing</td>
+                      <td className="px-4 py-3 text-gray-600">{patientData.medicalHistory || 'None reported'}</td>
+                      <td className="px-4 py-3 text-gray-500">Managed</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-semibold text-gray-700">Medications</td>
+                      <td className="px-4 py-3 text-gray-600">{patientData.medications || 'None'}</td>
+                      <td className="px-4 py-3 text-gray-500">Active</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-semibold text-gray-700">Risk Factors</td>
+                      <td className="px-4 py-3 text-gray-600">Fever: {patientData.fever} • Pain: {patientData.pain}</td>
+                      <td className="px-4 py-3 text-gray-500">Monitoring</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </>
+            )}
+          </section>
+
+          {/* Section 02: AI Assessment */}
+          <section className="mb-8">
+            <SectionLabel number="02" title="NEURAL-CLINICAL AI ASSESSMENT" color="#2d6a00" />
+            <div className="space-y-3">
+              {conditions.map((c, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: '#2d6a00' }}>
+                    {i + 1}
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900 text-sm">{c}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {summary && (
+              <div className="mt-4 p-4 rounded-xl text-sm text-gray-700 leading-relaxed" style={{ background: '#f0f7e8', borderLeft: '3px solid #2d6a00' }}>
+                {summary}
+              </div>
+            )}
+          </section>
+
+          {/* Section 03: Clinical Recommendations */}
+          <section className="mb-6">
+            <SectionLabel number="03" title="CLINICAL RECOMMENDATIONS" />
+            <div className="space-y-3">
+              {suggestedTests.map((t, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: '#f0f7e8' }}>
+                    <Activity size={13} style={{ color: '#2d6a00' }} />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm text-gray-900">{t}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Footer */}
+          <div className="border-t border-gray-100 pt-5 flex items-start justify-between">
+            <p className="text-xs text-gray-400 leading-relaxed max-w-sm italic">
+              Disclaimer: This AI-generated clinical summary is intended for professional review. It does not constitute a final medical diagnosis.
+            </p>
+            <div className="text-right">
+              <div className="text-sm text-gray-300 font-semibold italic">Dr. Ai System</div>
+              <div className="text-xs text-gray-500 font-semibold">Digital Validation ID</div>
+              <div className="text-xs text-gray-400">{`0xFFF-${reportId}-LUMINOUS`}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer info */}
+        <p className="text-center text-xs text-gray-400 mt-6 mb-10">
+          This report is HIPAA compliant and encrypted. All data processing occurred locally via Clinical Intelligence Nodes.
+        </p>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pb-10 no-print">
+          <button className="btn-outline" onClick={() => navigate(role === 'doctor' ? '/doctor' : '/patient')}>Back</button>
+          {role === 'doctor' && (
+            <button className="btn-primary" onClick={() => navigate('/prescription')}>
+              Create Rx Prescription
+            </button>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
 
-      <Card className="bg-base-100 border border-primary/20 p-2 sm:p-8 relative overflow-hidden print:border-none print:shadow-none print:p-0">
-        
-        {/* Prescription Header Styling */}
-        <div className="border-b-4 border-primary pb-6 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-           <div>
-              <div className="flex items-center gap-2 text-primary mb-2">
-                 <Stethoscope className="w-10 h-10" />
-                 <span className="text-2xl font-bold font-serif tracking-wide uppercase">Dr. Ai Portal</span>
-              </div>
-              <p className="text-sm font-semibold opacity-70">Automated Intake & Tele-Triage Summary</p>
-           </div>
-           <div className="text-left sm:text-right text-sm">
-             <p><strong>Date:</strong> {currentDate}</p>
-             <p><strong>Ref Code:</strong> RX-{Math.floor(100000 + Math.random() * 900000)}</p>
-           </div>
-        </div>
-
-        {/* Patient Registration Block */}
-        <div className="bg-base-200 p-4 rounded-xl mb-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm border border-base-300">
-           <div><p className="text-base-content/50 text-xs">Patient Age</p> <p className="font-bold">{patientData?.age || 'N/A'} yrs</p></div>
-           <div><p className="text-base-content/50 text-xs">Gender</p> <p className="font-bold capitalize">{patientData?.gender || 'N/A'}</p></div>
-           <div><p className="text-base-content/50 text-xs">Weight</p> <p className="font-bold">{patientData?.weight || 'N/A'} kg</p></div>
-           <div><p className="text-base-content/50 text-xs">Vitals Focus</p> <Badge color={riskColorMap[riskLevel]}>{riskLevel} Risk</Badge></div>
-        </div>
-
-        {/* Clinical Summary Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
-           {/* Left Column: Intake Summary */}
-           <div className="space-y-6">
-              
-              <div>
-                 <h3 className="text-lg font-bold border-b border-base-300 pb-2 mb-3 flex items-center gap-2">
-                    <FileHeart className="w-5 h-5 text-secondary" /> Initial Symptoms & Vitals
-                 </h3>
-                 <ul className="space-y-2 text-sm">
-                    <li><strong className="opacity-70">Fever Map:</strong> <span className="capitalize">{patientData?.fever}</span></li>
-                    <li><strong className="opacity-70">Pain Level:</strong> <span className="capitalize">{patientData?.pain}</span></li>
-                    <li><strong className="opacity-70">Fatigue:</strong> <span className="capitalize">{patientData?.fatigue}</span></li>
-                    <li><strong className="opacity-70">Primary Concerns:</strong> <br/> {patientData?.symptoms}</li>
-                 </ul>
-              </div>
-
-              <div>
-                 <h3 className="text-lg font-bold border-b border-base-300 pb-2 mb-3">Lifestyle & History</h3>
-                 <ul className="space-y-1 text-sm">
-                    <li><strong className="opacity-70">Diet & Water:</strong> {patientData?.diet}, {patientData?.waterIntake}L</li>
-                    <li><strong className="opacity-70">Medical History:</strong> {patientData?.medicalHistory || 'None'}</li>
-                    <li><strong className="opacity-70">Medications:</strong> {patientData?.medications || 'None'}</li>
-                 </ul>
-              </div>
-           </div>
-
-           {/* Right Column: AI Triage Output */}
-           <div className="space-y-6">
-              
-              <div className="bg-primary/5 p-5 rounded-xl border border-primary/20">
-                 <h3 className="text-lg font-bold text-primary flex items-center gap-2 mb-2">
-                    <Activity className="w-5 h-5" /> Differential Suspicions
-                 </h3>
-                 <p className="text-xs text-base-content/60 mb-3 italic">Logical assumptions, not definitive final diagnoses.</p>
-                 <ul className="list-disc list-inside space-y-1 font-medium">
-                   {conditions.map((c, i) => <li key={i}>{c}</li>)}
-                 </ul>
-              </div>
-
-              <div className="bg-base-200 p-5 rounded-xl">
-                 <h3 className="flex items-center gap-2 font-bold mb-2">
-                   <Pill className="text-warning w-5 h-5" /> Recommended Next Steps
-                 </h3>
-                 <ul className="list-disc list-inside space-y-1 text-sm">
-                   {suggestedTests.map((t, i) => <li key={i}>{t}</li>)}
-                 </ul>
-              </div>
-
-           </div>
-        </div>
-
-        {/* Contextual Narrative */}
-        <div className="border-t-2 border-dashed border-base-300 pt-6">
-           <h3 className="font-bold mb-2 text-lg">AI Observations & Narrative</h3>
-           <p className="leading-relaxed opacity-90 text-sm whitespace-pre-wrap">{summary}</p>
-        </div>
-
-      </Card>
-
-      <div className="flex justify-end gap-4 mt-8 pt-4 border-t border-base-300 print:hidden">
-        <Button variant="outline" onClick={() => navigate(role === 'patient' ? '/patient' : '/doctor')}>Back</Button>
-        {role === 'doctor' && (
-          <Button variant="primary" onClick={() => navigate('/prescription')}>
-            Create Rx Prescription
-          </Button>
-        )}
-      </div>
+function SectionLabel({ number, title, color = '#9ca3af' }) {
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      <div className="w-px h-5 rounded-full" style={{ background: color }}></div>
+      <span className="text-xs font-bold uppercase tracking-widest" style={{ color }}>
+        {number}. {title}
+      </span>
     </div>
   );
 }

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dr. Ai | Your Empathetic AI Medical Partner</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container": "#e5e9eb",
+              "background": "#f5f7f9",
+              "primary-fixed": "#b1fe4d",
+              "on-surface": "#2c2f31",
+              "on-tertiary-fixed": "#304a00",
+              "secondary-dim": "#205854",
+              "surface-container-low": "#eef1f3",
+              "primary-container": "#b1fe4d",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-container": "#3d5e00",
+              "primary-fixed-dim": "#a4ef3f",
+              "on-primary-fixed-variant": "#416a00",
+              "on-background": "#2c2f31",
+              "error": "#b02500",
+              "on-primary-container": "#3a5f00",
+              "tertiary-fixed-dim": "#aaee3d",
+              "surface-dim": "#d0d5d8",
+              "tertiary-fixed": "#b8fd4b",
+              "surface-bright": "#f5f7f9",
+              "on-primary": "#daffa9",
+              "on-error": "#ffefec",
+              "on-tertiary": "#dbffa3",
+              "surface": "#f5f7f9",
+              "outline": "#747779",
+              "primary-dim": "#365900",
+              "inverse-primary": "#b1fe4d",
+              "tertiary": "#426500",
+              "tertiary-container": "#b8fd4b",
+              "tertiary-dim": "#395800",
+              "error-container": "#f95630",
+              "outline-variant": "#abadaf",
+              "on-secondary-fixed-variant": "#2e6460",
+              "surface-container-highest": "#d9dde0",
+              "on-surface-variant": "#595c5e",
+              "on-secondary": "#c5fef7",
+              "inverse-surface": "#0b0f10",
+              "secondary-fixed-dim": "#a7dfd9",
+              "surface-tint": "#3f6600",
+              "secondary": "#2e6460",
+              "on-secondary-container": "#225a56",
+              "inverse-on-surface": "#9a9d9f",
+              "on-tertiary-fixed-variant": "#456900",
+              "error-dim": "#b92902",
+              "on-error-container": "#520c00",
+              "on-primary-fixed": "#2d4b00",
+              "surface-variant": "#d9dde0",
+              "secondary-fixed": "#b5ede7",
+              "surface-container-high": "#dfe3e6",
+              "primary": "#3f6600",
+              "on-secondary-fixed": "#084743",
+              "secondary-container": "#b5ede7"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .bg-glass {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      .luminous-orb {
+        filter: blur(120px);
+        position: absolute;
+        z-index: -1;
+        border-radius: 9999px;
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Glowing Background Accents -->
+<div class="luminous-orb w-[600px] h-[600px] bg-primary-container/10 -top-48 -left-48"></div>
+<div class="luminous-orb w-[400px] h-[400px] bg-tertiary-container/15 bottom-0 right-0"></div>
+<!-- TopNavBar -->
+<header class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl docked full-width top-0 sticky z-50 no-border bg-surface-container-low/30 shadow-[0_20px_40px_rgba(44,47,49,0.06)]">
+<nav class="flex justify-between items-center w-full px-8 py-4 max-w-full mx-auto">
+<div class="text-2xl font-bold text-lime-600 dark:text-lime-400 tracking-tighter font-['Manrope']">
+                Dr. Ai
+            </div>
+<div class="hidden md:flex gap-8 items-center font-['Manrope'] font-semibold tracking-tight">
+<a class="text-lime-700 dark:text-lime-300 border-b-2 border-lime-500 pb-1" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-lime-600 transition-colors" href="#">AI Assistant</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-lime-600 transition-colors" href="#">Reports</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-lime-600 transition-colors" href="#">Help</a>
+</div>
+<div class="flex items-center gap-4">
+<span class="hidden sm:inline-block px-4 py-1.5 rounded-full bg-surface-container-high text-on-surface text-sm font-medium">Role: Patient</span>
+<button class="material-symbols-outlined p-2 hover:bg-lime-50/50 dark:hover:bg-lime-900/20 rounded-full transition-all">menu</button>
+</div>
+</nav>
+</header>
+<main class="relative px-6 md:px-12 py-12 md:py-24 max-w-7xl mx-auto overflow-hidden">
+<!-- Hero Section -->
+<section class="flex flex-col items-start gap-8 mb-24 md:max-w-3xl">
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold text-on-surface leading-[1.1] tracking-tight">
+                Your Empathetic <br/>
+<span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">AI Medical Partner</span>
+</h1>
+<p class="font-body text-xl md:text-2xl text-on-surface-variant max-w-2xl leading-relaxed">
+                Professional, intelligent tele-triage to help you understand your symptoms instantly. 
+                Get the clarity you need before stepping into the clinic.
+            </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-gradient-to-br from-primary to-primary-dim text-on-primary-fixed px-10 py-5 rounded-full font-headline font-bold text-lg shadow-[0_20px_40px_rgba(63,102,0,0.2)] hover:scale-105 transition-transform active:scale-95 duration-200">
+                    Get Started Now
+                </button>
+<button class="bg-surface-container-high text-on-surface px-10 py-5 rounded-full font-headline font-bold text-lg hover:bg-surface-container-highest transition-colors active:scale-95 duration-200">
+                    How it Works
+                </button>
+</div>
+</section>
+<!-- Role Selection -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-32">
+<!-- Patient Card (Primary Focus) -->
+<div class="group relative overflow-hidden bg-glass p-8 md:p-12 rounded-xl border border-white/40 shadow-[0_20px_40px_rgba(44,47,49,0.06)] hover:shadow-[0_40px_80px_rgba(44,47,49,0.12)] transition-all duration-500 hover:-translate-y-2 cursor-pointer">
+<div class="flex flex-col h-full gap-6">
+<div class="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center text-on-primary-container shadow-inner">
+<span class="material-symbols-outlined text-4xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<div>
+<h3 class="font-headline text-3xl font-bold text-on-surface mb-3">I am a Patient</h3>
+<p class="text-on-surface-variant text-lg leading-relaxed">
+                            Log symptoms, chat with Dr. Ai, and receive a preliminary triage report to share with your clinician.
+                        </p>
+</div>
+<div class="mt-auto pt-6 flex items-center text-primary font-bold gap-2 group-hover:gap-4 transition-all">
+                        Begin My Consultation
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</div>
+</div>
+<!-- Decorative element -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+</div>
+<!-- Doctor Card -->
+<div class="group relative overflow-hidden bg-surface-container-low/40 p-8 md:p-12 rounded-xl hover:bg-surface-container-low transition-all duration-500 cursor-pointer">
+<div class="flex flex-col h-full gap-6">
+<div class="w-16 h-16 rounded-2xl bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-4xl">stethoscope</span>
+</div>
+<div>
+<h3 class="font-headline text-3xl font-bold text-on-surface mb-3">I am a Provider</h3>
+<p class="text-on-surface-variant text-lg leading-relaxed">
+                            Access your dashboard, review patient triage reports, and integrate clinical intelligence into your workflow.
+                        </p>
+</div>
+<div class="mt-auto pt-6 flex items-center text-on-surface-variant font-bold gap-2 group-hover:gap-4 transition-all">
+                        Provider Portal
+                        <span class="material-symbols-outlined">login</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Bento Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
+<div class="md:col-span-2 p-10 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<span class="text-primary font-bold uppercase tracking-widest text-xs mb-4 block">Precision</span>
+<h4 class="font-headline text-4xl font-extrabold mb-4">98% Triage Accuracy</h4>
+<p class="text-on-surface-variant max-w-sm">Built on clinical datasets and fine-tuned by practicing medical professionals for reliable guidance.</p>
+</div>
+<div class="absolute right-0 top-0 h-full w-1/3 opacity-20 bg-gradient-to-l from-primary to-transparent"></div>
+</div>
+<div class="p-10 rounded-lg bg-primary text-on-primary flex flex-col justify-center text-center">
+<span class="material-symbols-outlined text-5xl mb-4" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<p class="font-headline text-2xl font-bold">2-Minute <br/>Analysis</p>
+</div>
+</section>
+<!-- Visual Divider / Image -->
+<div class="w-full h-[500px] rounded-xl overflow-hidden mb-32 relative group">
+<img alt="Modern clinical office" class="w-full h-full object-cover grayscale-[0.2] group-hover:scale-105 transition-transform duration-1000" data-alt="Modern minimal clinic interior with natural light plants glass walls and sophisticated medical equipment in a soft professional atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8_cpj6hLtAfxdWseKkkCNRbtKFd4a8Hs62HYQZaa5RQ15_t5aJjoN0D5zyurBLf3aex9HqUmWErLIEKsq4I_cil76fzrLuc5-y1bwW1R4zUxVerCYxnfR--k5gQU95fbmhWFMwHHth-q0q0fh3nmMfHenyjAPKOEE_XOaIBqo7RfNeXZNHQyX2h34XpMMycL7RSFqVO2PqKeURvVmdb09O3R8cyYr06NIPQboj7QuYHzHoNT0iKRT5r76QbC6q57n3Owc293CoNg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-12 left-12 right-12 flex flex-col md:flex-row justify-between items-end gap-6">
+<div class="bg-glass p-8 rounded-lg max-w-md">
+<p class="text-on-surface font-headline font-bold text-xl italic">"Dr. Ai provided immediate calm and clear direction during a late-night health scare. It's the future of triage."</p>
+<p class="mt-4 font-body text-sm text-on-surface-variant">— Sarah J., Patient User</p>
+</div>
+</div>
+</div>
+<!-- Trust Signals -->
+<section class="flex flex-col items-center gap-12 text-center py-12">
+<p class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Trusted by clinical systems worldwide</p>
+<div class="flex flex-wrap justify-center gap-12 md:gap-24 opacity-40 grayscale">
+<div class="flex items-center gap-2 font-headline font-black text-2xl">CLINIC_NET</div>
+<div class="flex items-center gap-2 font-headline font-black text-2xl">MEDIFLOW</div>
+<div class="flex items-center gap-2 font-headline font-black text-2xl">BIO_SYNC</div>
+<div class="flex items-center gap-2 font-headline font-black text-2xl">AURA_HEALTH</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-100 dark:border-slate-900 bg-white dark:bg-slate-950">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full">
+<div class="font-['Inter'] text-xs text-slate-500 uppercase tracking-widest mb-4 md:mb-0">
+                © 2024 Dr. Ai Clinical Systems. HIPAA Compliant.
+            </div>
+<div class="flex gap-8 flex-wrap justify-center font-['Inter'] text-xs text-slate-500 uppercase tracking-widest">
+<a class="text-slate-400 hover:text-slate-600 hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="text-slate-400 hover:text-slate-600 hover:underline transition-all" href="#">Terms of Service</a>
+<a class="text-slate-400 hover:text-slate-600 hover:underline transition-all" href="#">Accessibility</a>
+<a class="text-slate-400 hover:text-slate-600 hover:underline transition-all" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+</body></html>
